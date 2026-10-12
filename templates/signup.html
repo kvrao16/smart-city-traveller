@@ -1,0 +1,437 @@
+{% extends 'base.html' %}
+{% block title %}Sign Up - Smart City Traveller{% endblock %}
+{% block content %}
+<style>
+    /* Background Image for the Sign Up Page */
+    body {
+        background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+    }
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7); /* Dark overlay to match the theme */
+        z-index: -1;
+    }
+    /* Card Styling */
+    .card {
+        background: #3a3a3a; /* Dark gray to match the dark theme */
+        border: none;
+        border-radius: 15px;
+        color: #e0e0e0; /* Light gray text */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    /* Form Inputs */
+    .form-control {
+        background: #2c2c2c; /* Darker input background */
+        border: 1px solid #66b0ff; /* Light blue border */
+        color: #e0e0e0;
+        border-radius: 8px;
+        transition: border-color 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #4d9bff; /* Slightly darker blue on focus */
+        box-shadow: 0 0 5px rgba(102, 176, 255, 0.5);
+        background: #2c2c2c;
+        color: #e0e0e0;
+    }
+    .form-control::placeholder {
+        color: #a0a0a0; /* Placeholder text color */
+    }
+    .form-label {
+        color: #e0e0e0;
+        font-weight: 500;
+    }
+    /* Sign Up Button */
+    .btn-primary {
+        background: #66b0ff; /* Light blue button */
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+    .btn-primary:hover {
+        background: #4d9bff; /* Slightly darker blue on hover */
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    .btn-primary:disabled {
+        background: #4a4a4a; /* Grayed out when disabled */
+        cursor: not-allowed;
+    }
+    /* Password Visibility Toggle Button Styling */
+    .input-group .btn-outline-secondary {
+        background: #2c2c2c; /* Match input background */
+        border: 1px solid #66b0ff; /* Light blue border */
+        color: #66b0ff; /* Light blue icon */
+        border-radius: 0 8px 8px 0; /* Rounded corners on the right */
+        transition: all 0.3s ease;
+    }
+    .input-group .btn-outline-secondary:hover {
+        background: #3a3a3a; /* Slightly lighter on hover */
+        color: #4d9bff; /* Slightly darker blue on hover */
+    }
+    /* Password Requirements Styling */
+    #password-requirements li {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    .text-success {
+        color: #28a745 !important; /* Green for valid requirements */
+    }
+    .text-danger {
+        color: #ff4d4d !important; /* Red for invalid requirements */
+    }
+    /* Log In Button/Link Styling */
+    .login-btn {
+        display: inline-block;
+        background: transparent;
+        border: 2px #66b0ff;
+        color: #66b0ff;
+        padding: 8px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    .login-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(102, 176, 255, 0.3), transparent);
+        transition: 0.5s;
+    }
+    .login-btn:hover::before {
+        left: 100%;
+    }
+    .login-btn:hover {
+        background: #66b0ff;
+        color: #ffffff;
+        transform: scale(1.05);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        text-decoration: none;
+    }
+    /* Forgot Password Button/Link Styling */
+    .forgot-password-btn {
+        display: inline-block;
+        background: transparent;
+        border: 2px #ff6f61; /* Coral dashed border for a playful look */
+        color: #ff6f61; /* Coral text */
+        padding: 8px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    .forgot-password-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 111, 97, 0.3), transparent);
+        transition: 0.5s;
+    }
+    .forgot-password-btn:hover::before {
+        left: 100%;
+    }
+    .forgot-password-btn:hover {
+        background: #ff6f61;
+        color: #ffffff;
+        transform: scale(1.05);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        text-decoration: none;
+    }
+    /* Emoji Animation for Forgot Password */
+    .forgot-password-btn .emoji {
+        display: inline-block;
+        margin-left: 5px;
+        transition: transform 0.3s ease;
+    }
+    .forgot-password-btn:hover .emoji {
+        transform: rotate(20deg);
+    }
+    /* Alert Styling */
+    .alert {
+        border-radius: 8px;
+        color: #ffffff;
+    }
+    .alert-danger {
+        background: #ff4d4d; /* Red for error messages */
+        border: none;
+    }
+    .alert-success {
+        background: #28a745; /* Green for success messages */
+        border: none;
+    }
+    .btn-close {
+        filter: invert(1); /* Makes the close button white for visibility */
+    }
+    /* General Text */
+    .text-center {
+        color: #e0e0e0;
+    }
+    h2 {
+        color: #ffffff;
+    }
+</style>
+<div class="container mt-5 py-5 fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card p-4 shadow-lg">
+                <h2 class="text-center mb-4 fs-3 fw-bold">Sign Up</h2>
+                <div id="error-message" class="alert alert-danger d-none" role="alert"></div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form id="signup-form">
+                    <div class="mb-3">
+                        <label for="displayName" class="form-label">Name 👤</label>
+                        <input type="text" class="form-control" id="displayName" name="displayName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address 📧</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password 🔑</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <button type="button" class="btn btn-outline-secondary" id="toggle-password">
+                                <i class="bi bi-eye" id="toggle-icon"></i>
+                            </button>
+                        </div>
+                        <ul class="list-unstyled mt-2" id="password-requirements">
+                            <li id="length" class="text-danger"><span class="me-2">✘</span> At least 8 characters</li>
+                            <li id="uppercase" class="text-danger"><span class="me-2">✘</span> At least one uppercase letter</li>
+                            <li id="lowercase" class="text-danger"><span class="me-2">✘</span> At least one lowercase letter</li>
+                            <li id="number" class="text-danger"><span class="me-2">✘</span> At least one number</li>
+                            <li id="special" class="text-danger"><span class="me-2">✘</span> At least one special character</li>
+                        </ul>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="signup-button" disabled><b>Sign Up 🚀</b></button>
+                </form>
+                <p class="text-center mt-3">
+                    <b>Already have an account?</b><br><a href="{{ url_for('login') }}" class="login-btn">Log In🔓</a>
+                </p>
+                <p class="text-center">
+                    <b>Lost your key?</b><br><a href="{{ url_for('forgot_password') }}" class="forgot-password-btn">Get New Key🔒<span class="emoji"></span></a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<!-- Include Bootstrap Icons for eye and eye-slash -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        // Initialize Firebase
+        let isSyncing = false;
+        try {
+            const firebaseConfig = {{ config.firebase | tojson | safe }};
+            firebase.initializeApp(firebaseConfig);
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            if (typeof showError === 'function') {
+                showError('Failed to connect to services. Please try again later.');
+            }
+            return;
+        }
+
+        const auth = firebase.auth();
+        const form = document.getElementById('signup-form');
+        const errorMessage = document.getElementById('error-message');
+        const signupButton = document.getElementById('signup-button');
+        const passwordInput = document.getElementById('password');
+        const togglePassword = document.getElementById('toggle-password');
+        const toggleIcon = document.getElementById('toggle-icon');
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('d-none');
+            setTimeout(() => {
+                errorMessage.classList.add('d-none');
+            }, 5000);
+        }
+
+        // Password visibility toggle
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            toggleIcon.classList.toggle('bi-eye');
+            toggleIcon.classList.toggle('bi-eye-slash');
+        });
+
+        // Password validation function
+        function validatePassword() {
+            const password = passwordInput.value;
+            const requirements = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+
+            // Update UI for each requirement
+            for (const [key, isValid] of Object.entries(requirements)) {
+                const element = document.getElementById(key);
+                if (isValid) {
+                    element.classList.remove('text-danger');
+                    element.classList.add('text-success');
+                    element.innerHTML = `<span class="me-2">✔</span> ${element.textContent.slice(2)}`;
+                } else {
+                    element.classList.remove('text-success');
+                    element.classList.add('text-danger');
+                    element.innerHTML = `<span class="me-2">✘</span> ${element.textContent.slice(2)}`;
+                }
+            }
+
+            // Enable/disable submit button based on all requirements being met
+            const allValid = Object.values(requirements).every(val => val);
+            signupButton.disabled = !allValid;
+        }
+
+        // Validate password on input
+        passwordInput.addEventListener('input', validatePassword);
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            signupButton.disabled = true;
+            signupButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Signing Up...';
+            isSyncing = true;
+
+            const email = form.email.value;
+            const password = form.password.value;
+            const displayName = form.displayName.value;
+
+            try {
+                // Create user with Firebase Authentication
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Update user profile with display name
+                await user.updateProfile({ displayName });
+
+                // Get ID token
+                const idToken = await user.getIdToken();
+
+                // Sync session with backend
+                const response = await fetch('/sync-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        uid: user.uid,
+                        email: user.email,
+                        id_token: idToken,
+                        displayName: displayName
+                    })
+                });
+
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    isSyncing = false;
+                    window.location.href = '/dashboard';
+                } else {
+                    throw new Error(result.error || 'Failed to sync session.');
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                let message = 'An error occurred. Please try again.';
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'This email is already registered. Please log in or use a different email.';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Invalid email address.';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'Password is too weak. Please ensure it meets all requirements.';
+                }
+                showError(message);
+            } finally {
+                signupButton.disabled = false;
+                signupButton.innerHTML = 'Sign Up';
+                isSyncing = false;
+            }
+        });
+
+        // Check authentication state
+        auth.onAuthStateChanged(user => {
+            if (user && !isSyncing && !localStorage.getItem('loggingOut')) {
+                console.log('User authenticated, syncing session:', user.uid);
+                user.getIdToken().then(idToken => {
+                    fetch('/sync-session', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            uid: user.uid,
+                            email: user.email,
+                            id_token: idToken,
+                            displayName: user.displayName || ''
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            window.location.href = '/dashboard';
+                        } else {
+                            console.error('Session sync failed:', result.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Session sync error:', error);
+                    });
+                });
+            }
+        });
+    })();
+</script>
+{% endblock %}

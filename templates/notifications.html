@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<style>
+    /* Background Image for the Notifications Page */
+    body {
+        background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+    }
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7); /* Dark overlay to match the theme */
+        z-index: -1;
+    }
+    /* Card Styling */
+    .card {
+        background: #3a3a3a; /* Dark gray to match the dark theme */
+        border: none;
+        border-radius: 15px;
+        color: #e0e0e0; /* Light gray text */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    /* List Group Item Styling */
+    .list-group-item {
+        background: #2c2c2c; /* Slightly darker than card for contrast */
+        border: 1px solid #66b0ff; /* Light blue border */
+        border-radius: 10px;
+        color: #e0e0e0;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .list-group-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        background: #2c2c2c; /* Explicitly set to prevent color change on hover */
+    }
+    /* Buttons */
+    .btn-outline-secondary {
+        background: #4d9bff; /* Orange background to match other files */
+        border: none; /* Aligned with login.html style */
+        border-radius: 10px;
+        padding: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-outline-secondary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 159, 51, 0.3), transparent); /* Shine effect matching orange */
+        transition: 0.5s;
+    }
+    .btn-outline-secondary:hover::before {
+        left: 100%;
+    }
+    .btn-outline-secondary:hover {
+        background: #4d9bff; /* Slightly darker orange on hover */
+        color: #ffffff;
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Aligned with login.html */
+    }
+    .btn-outline-danger {
+        background: #4d9bff; /* Orange background to match .btn-outline-secondary */
+        border: none; /* Aligned with login.html style */
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-outline-danger::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 159, 51, 0.3), transparent); /* Shine effect matching orange */
+        transition: 0.5s;
+    }
+    .btn-outline-danger:hover::before {
+        left: 100%;
+    }
+    .btn-outline-danger:hover {
+        background: #4d9bff; /* Slightly darker orange on hover */
+        color: #ffffff;
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Aligned with login.html */
+    }
+    /* Alert Styling */
+    .alert {
+        border-radius: 8px;
+        color: #ffffff;
+    }
+    .alert-danger {
+        background: #ff4d4d; /* Red for error messages */
+        border: none;
+    }
+    .alert-success {
+        background: #28a745; /* Green for success messages */
+        border: none;
+    }
+    .btn-close {
+        filter: invert(1); /* Makes the close button white for visibility */
+    }
+    /* General Text */
+    .text-center {
+        color: #e0e0e0;
+    }
+    .text-muted {
+        color: #a0a0a0 !important; /* Light gray for muted text */
+    }
+    h2, h5 {
+        color: #ffffff;
+    }
+    .list-group-item p {
+        color: #e0e0e0;
+    }
+    /* Icon Styling */
+    .fas.fa-bell {
+        transition: transform 0.3s ease;
+    }
+    .fas.fa-bell:hover {
+        transform: scale(1.1);
+    }
+</style>
+<div class="container mt-5 py-5 fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card p-5 shadow-lg">
+                <h2 class="text-center mb-4 fs-3 fw-bold">Notifications🔔</h2>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                {% if notifications %}
+                    <div class="list-group">
+                        {% for notification in notifications %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center p-4 mb-3 shadow-sm">
+                                <div>
+                                    <h5 class="mb-1 fw-bold">{{ notification.title | default('Notification') }}ℹ️</h5>
+                                    <p class="mb-1">{{ notification.message | default('No message') }}💬</p>
+                                    <small class="text-muted">{{ notification.timestamp | default('N/A') }}⏰</small>
+                                </div>
+                                <div>
+                                    <form action="{{ url_for('dismiss_notification', notification_id=notification.id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Dismiss🚫</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-bell fa-3x text-muted mb-3"></i>
+                        <p class="fs-5 text-muted">No notifications at this time🔔</p>
+                    </div>
+                {% endif %}
+                <div class="d-flex gap-3 mt-4">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary w-100">Back to My Trips🔙</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

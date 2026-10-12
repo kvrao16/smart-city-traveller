@@ -1,0 +1,390 @@
+{% extends 'base.html' %}
+{% block title %}Profile - Smart City Traveller{% endblock %}
+{% block content %}
+<div class="container mt-5 py-5 fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card p-5 shadow-lg">
+                <div class="text-center mb-4">
+                    <h2 class="fs-3 fw-bold">Your Profile</h2>
+                    <p class="text-muted">Manage your account details and preferences.</p>
+                </div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <div id="auth-message" class="text-center mb-4"></div>
+                <form id="profile-form" class="needs-validation" novalidate>
+                    <div class="mb-4">
+                        <label for="displayName" class="form-label fw-bold">Display Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="displayName" value="{{ session.user.displayName | default('') }}" required>
+                        <div class="invalid-feedback">Please enter a display name.</div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="email" class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" value="{{ session.user.email | default('') }}" readonly>
+                        <small class="form-text text-muted">Email cannot be changed.</small>
+                    </div>
+                    <
+                    <div class="mb-4">
+                        <label for="travelPreferences" class="form-label fw-bold">Travel Preferences</label>
+                        <select id="travelPreferences" class="form-select" multiple>
+                            <option value="food">Food</option>
+                            <option value="historic site">Historic Site</option>
+                            <option value="park">Park</option>
+                            <option value="museum">Museum</option>
+                            <option value="shopping">Shopping</option>
+                        </select>
+                        <small class="form-text text-muted">Select your preferred travel interests.</small>
+                    </div>
+                    <div class="d-flex gap-3 mb-4">
+                        <button type="submit" class="btn btn-primary w-100" id="update-btn">Update Profile</button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary w-100">Cancel</a>
+                    </div>
+                    <div class="text-center">
+                        <button type="button" class="btn btn-danger" id="delete-account-btn">Delete Account</button>
+                    </div>
+                    <div id="loading-spinner" class="loading-spinner"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        // Form validation
+        const form = document.getElementById('profile-form');
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+
+        // Password visibility toggles
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const togglePassword = document.getElementById('toggle-password');
+        const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
+
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            togglePassword.querySelector('i').classList.toggle('fa-eye');
+            togglePassword.querySelector('i').classList.toggle('fa-eye-slash');
+            togglePassword.setAttribute('aria-label', type === 'password' ? 'Show password' : 'Hide password');
+        });
+
+        toggleConfirmPassword.addEventListener('click', () => {
+            const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
+            confirmPasswordInput.type = type;
+            toggleConfirmPassword.querySelector('i').classList.toggle('fa-eye');
+            toggleConfirmPassword.querySelector('i').classList.toggle('fa-eye-slash');
+            toggleConfirmPassword.setAttribute('aria-label', type === 'password' ? 'Show confirm password' : 'Hide confirm password');
+        });
+
+        // Initialize Firebase
+        let firebaseConfig;
+        try {
+            firebaseConfig = JSON.parse(`{{ config.firebase | tojson | safe }}`);
+            console.log('Firebase Config:', firebaseConfig);
+            firebase.initializeApp(firebaseConfig);
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            const authMessage = document.getElementById('auth-message');
+            authMessage.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Failed to connect to services. Please try again later.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            return;
+        }
+
+        const auth = firebase.auth();
+        const updateBtn = document.getElementById('update-btn');
+        const deleteBtn = document.getElementById('delete-account-btn');
+        const authMessage = document.getElementById('auth-message');
+        const spinner = document.getElementById('loading-spinner');
+
+        // Check authentication state
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                console.log('User not authenticated, redirecting to login');
+                window.location.href = '/login';
+            } else {
+                console.log('User authenticated:', user.email);
+                document.getElementById('displayName').value = user.displayName || '';
+                document.getElementById('email').value = user.email || '';
+            }
+        });
+
+        // Handle profile update
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!form.checkValidity()) return;
+
+            const displayName = document.getElementById('displayName').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const travelPreferences = Array.from(document.getElementById('travelPreferences').selectedOptions).map(opt => opt.value);
+
+            if (password && password.length < 6) {
+                authMessage.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        Password must be at least 6 characters.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                authMessage.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        Passwords do not match.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                return;
+            }
+
+            authMessage.innerHTML = '';
+            updateBtn.disabled = true;
+            updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+            spinner.style.display = 'block';
+
+            try {
+                const user = auth.currentUser;
+                const updates = {};
+
+                if (displayName !== user.displayName) {
+                    updates.displayName = displayName;
+                    await user.updateProfile({ displayName });
+                }
+
+                if (password) {
+                    await user.updatePassword(password);
+                }
+
+                // Sync with backend
+                const idToken = await user.getIdToken(true);
+                updates.uid = user.uid;
+                updates.email = user.email;
+                updates.travelPreferences = travelPreferences;
+
+                const response = await fetch('/update_profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates)
+                });
+
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    authMessage.innerHTML = `
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            Profile updated successfully!
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                    console.log('Profile updated:', updates);
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || 'Failed to update profile.');
+                }
+            } catch (error) {
+                console.error('Profile update error:', error);
+                let errorText = 'Failed to update profile. Please try again.';
+                switch (error.code) {
+                    case 'auth/requires-recent-login':
+                        errorText = 'Please log in again to update your profile.';
+                        break;
+                    case 'auth/invalid-value':
+                        errorText = 'Invalid input provided.';
+                        break;
+                    default:
+                        errorText = `Error: ${error.message}`;
+                }
+                authMessage.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        ${errorText}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+            } finally {
+                updateBtn.disabled = false;
+                updateBtn.innerHTML = 'Update Profile';
+                spinner.style.display = 'none';
+            }
+        });
+
+        // Handle account deletion
+        deleteBtn.addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to delete your account? This action is irreversible.')) return;
+
+            authMessage.innerHTML = '';
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...';
+            spinner.style.display = 'block';
+
+            try {
+                const user = auth.currentUser;
+                const idToken = await user.getIdToken(true);
+
+                // Delete user data from backend
+                const response = await fetch('/delete_account', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid: user.uid, idToken })
+                });
+
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    await user.delete();
+                    authMessage.innerHTML = `
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            Account deleted successfully. Redirecting...
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                    console.log('Account deleted:', user.email);
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || 'Failed to delete account.');
+                }
+            } catch (error) {
+                console.error('Account deletion error:', error);
+                let errorText = 'Failed to delete account. Please try again.';
+                if (error.code === 'auth/requires-recent-login') {
+                    errorText = 'Please log in again to delete your account.';
+                }
+                authMessage.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        ${errorText}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+            } finally {
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = 'Delete Account';
+                spinner.style.display = 'none';
+            }
+        });
+
+        // Input field animations
+        const inputs = document.querySelectorAll('.form-control, .form-select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('focused');
+                input.style.borderColor = '#007bff';
+            });
+            input.addEventListener('blur', () => {
+                if (!input.value) {
+                    input.parentElement.classList.remove('focused');
+                }
+                input.style.borderColor = '#ced4da';
+            });
+            input.addEventListener('input', () => {
+                if (input.value) {
+                    input.classList.add('has-value');
+                } else {
+                    input.classList.remove('has-value');
+                }
+            });
+        });
+
+        // Auto-focus display name input
+        document.getElementById('displayName').focus();
+
+        // Prevent form resubmission
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+        // Keyboard accessibility
+        form.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') {
+                e.preventDefault();
+                updateBtn.click();
+            }
+        });
+
+        // Responsive adjustments
+        const adjustLayout = () => {
+            const width = window.innerWidth;
+            if (width <= 576) {
+                document.querySelector('.card').style.padding = '1.5rem';
+                updateBtn.style.fontSize = '0.9rem';
+                deleteBtn.style.fontSize = '0.9rem';
+            } else {
+                document.querySelector('.card').style.padding = '2.5rem';
+                updateBtn.style.fontSize = '1rem';
+                deleteBtn.style.fontSize = '1rem';
+            }
+        };
+        adjustLayout();
+        window.addEventListener('resize', adjustLayout);
+
+        // Prevent double submission
+        let isSubmitting = false;
+        form.addEventListener('submit', (e) => {
+            if (isSubmitting) {
+                e.preventDefault();
+            }
+            isSubmitting = true;
+            setTimeout(() => {
+                isSubmitting = false;
+            }, 1000);
+        });
+
+        // Log page load
+        console.log('Profile page loaded at:', new Date().toISOString());
+
+        // Button hover effects
+        [updateBtn, deleteBtn].forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-2px)';
+                btn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translateY(0)';
+                btn.style.boxShadow = 'none';
+            });
+        });
+
+        // Accessibility enhancements
+        updateBtn.setAttribute('aria-label', 'Update profile information');
+        deleteBtn.setAttribute('aria-label', 'Delete account permanently');
+        document.getElementById('displayName').setAttribute('aria-describedby', 'displayNameHelp');
+        document.getElementById('email').setAttribute('aria-describedby', 'emailHelp');
+        const displayNameHelp = document.createElement('small');
+        displayNameHelp.id = 'displayNameHelp';
+        displayNameHelp.className = 'form-text text-muted';
+        displayNameHelp.textContent = 'Enter your preferred display name.';
+        document.getElementById('displayName').parentElement.appendChild(displayNameHelp);
+        const emailHelp = document.createElement('small');
+        emailHelp.id = 'emailHelp';
+        emailHelp.className = 'form-text text-muted';
+        emailHelp.textContent = 'Your registered email address.';
+        document.getElementById('email').parentElement.appendChild(emailHelp);
+    })();
+</script>
+{% endblock %}

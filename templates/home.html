@@ -1,0 +1,734 @@
+{% extends 'base.html' %}
+{% block title %}Home - Smart City Traveller{% endblock %}
+{% block head %}
+<!-- Add AOS library for animations -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<!-- Add Vanilla Tilt for 3D card effects -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<!-- Google Fonts: Inter for typography -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f5f7fa;
+        color: #000000;
+        margin: 0;
+        overflow-x: hidden;
+        /* Adding a travel-themed background image for the entire page */
+        background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+    }
+    /* Adding a semi-transparent overlay to ensure text readability over the background */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.7); /* Light overlay to improve text contrast */
+        z-index: -1;
+    }
+    /* Sticky Navigation */
+    .navbar {
+        position: sticky;
+        top: 0;
+        background: linear-gradient(to right, #0057b8, #0057b8); /* Deep blue */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        padding: 15px 0;
+    }
+    .navbar .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .navbar-brand {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #ffffff; /* White */
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .navbar-brand i {
+        font-size: 1.5rem;
+        color: #ffffff; /* White */
+    }
+    .navbar-links a {
+        margin-left: 20px;
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: color 0.3s ease;
+    }
+    .navbar-links a:hover {
+        color: #e0e0e0;
+    }
+    .navbar-links i {
+        margin-right: 5px;
+        color: #ffffff;
+    }
+    /* Hero Section */
+    .hero-section {
+        background: #0057b8; /* Deep blue */
+        color: white;
+        padding: 80px 0;
+        min-height: 400px;
+        position: relative;
+    }
+    .hero-section h1 {
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        font-size: 3rem;
+    }
+    .hero-section p {
+        font-weight: 400;
+        font-size: 1.25rem;
+    }
+    .hero-section .search-bar {
+        max-width: 700px;
+        display: flex;
+        gap: 10px;
+    }
+    .hero-section .search-bar input {
+        flex: 1;
+        padding: 15px;
+        border: none;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        font-weight: 400;
+    }
+    .hero-section .search-bar button {
+        padding: 15px 30px;
+        border: none;
+        border-radius: 30px;
+        background: #ffffff; /* White */
+        color: #0057b8; /* Deep blue */
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        /* Adding animation for the search bar button */
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-section .search-bar button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: 0.5s;
+    }
+    .hero-section .search-bar button:hover::before {
+        left: 100%;
+    }
+    .hero-section .search-bar button:hover {
+        background: #e0e0e0;
+        transform: scale(1.05);
+    }
+    .hero-section img {
+        max-width: 100%;
+        border-radius: 12px;
+    }
+    /* Feature Cards */
+    .feature-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+        border: none;
+        overflow: hidden;
+    }
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+    /* Buttons */
+    .btn-primary {
+        background: #0057b8;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        /* Adding animation for primary buttons */
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: 0.5s;
+    }
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+    .btn-primary:hover {
+        background: #003a75;
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    .btn-outline-primary {
+        border: 2px solid #0057b8;
+        color: #0057b8;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        /* Adding animation for outline buttons */
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-outline-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 87, 184, 0.2), transparent);
+        transition: 0.5s;
+    }
+    .btn-outline-primary:hover::before {
+        left: 100%;
+    }
+    .btn-outline-primary:hover {
+        background: #0057b8;
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    /* Interest Cards */
+    .interest-card img {
+        transition: transform 0.3s ease;
+        object-fit: cover;
+        height: 200px;
+        width: 100%;
+    }
+    .interest-card:hover img {
+        transform: scale(1.1);
+    }
+    /* Step Tiles for How It Works */
+    .step {
+        background: #ffffff;
+        border-left: 5px solid #0057b8;
+        padding: 1.5rem;
+        border-radius: 10px;
+        transition: background 0.3s ease;
+    }
+    .step:hover {
+        background: #e6f0fa; /* Light blue */
+    }
+    .step i {
+        font-size: 2.5rem;
+        color: #0057b8; /* Deep blue */
+        transition: transform 0.3s ease;
+    }
+    .step:hover i {
+        transform: scale(1.1);
+    }
+    /* Image Overlay for Cities */
+    .carousel-item {
+        position: relative;
+    }
+    .carousel-item .overlay {
+        position: absolute;
+        bottom: 15px;
+        left: 15px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, #e6f0fa, #b3d4fc); /* Blue-inspired gradient */
+        padding: 60px 0;
+        text-align: center;
+    }
+    /* Footer */
+    .footer {
+        background: #0057b8; /* Deep blue */
+        color: white;
+        padding: 30px 0;
+    }
+    .footer .social-icon {
+        font-size: 1.8rem;
+        margin: 0 15px;
+        color: #ffffff;
+        transition: color 0.3s ease;
+    }
+    .footer .social-icon:hover {
+        color: #e0e0e0;
+    }
+    /* Popular Cities Carousel */
+    .carousel {
+        overflow: hidden;
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .carousel-inner {
+        display: flex;
+        transition: transform 0.5s ease;
+    }
+    .carousel-item {
+        min-width: 33.33%;
+        padding: 15px;
+        box-sizing: border-box;
+    }
+    .carousel-item img {
+        border-radius: 12px;
+        object-fit: cover;
+        height: 250px;
+        width: 100%;
+    }
+    .carousel-item h5 {
+        margin-top: 10px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    .carousel-controls {
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        transform: translateY(-50%);
+    }
+    .carousel-controls button {
+        background: rgba(0, 0, 0, 0.5);
+        border: none;
+        color: white;
+        padding: 12px;
+        cursor: pointer;
+        border-radius: 50%;
+        transition: background 0.3s ease;
+        /* Adding animation for carousel buttons */
+        position: relative;
+        overflow: hidden;
+    }
+    .carousel-controls button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: 0.5s;
+    }
+    .carousel-controls button:hover::before {
+        left: 100%;
+    }
+    .carousel-controls button:hover {
+        background: rgba(0, 0, 0, 0.8);
+    }
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 60px 0;
+        }
+        .hero-section h1 {
+            font-size: 2.5rem;
+        }
+        .hero-section p {
+            font-size: 1.1rem;
+        }
+        .carousel-item {
+            min-width: 50%;
+        }
+    }
+    @media (max-width: 576px) {
+        .hero-section h1 {
+            font-size: 1.8rem;
+        }
+        .hero-section p {
+            font-size: 1rem;
+        }
+        .carousel-item {
+            min-width: 100%;
+        }
+        .navbar-links {
+            display: none;
+        }
+        .hero-section img {
+            margin-top: 20px;
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+
+<!-- Hero Section -->
+<div class="hero-section" data-aos="fade-up">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="fs-1 fw-bold mb-3">Discover India with Smart City Traveller</h1>
+                <p class="fs-5 mb-4">Craft vibrant journeys inspired by your passions.</p>
+                <div class="search-bar">
+                    <input type="text" placeholder="Enter a city (e.g., Jaipur)" aria-label="Search for a city">
+                    <button onclick="searchCity()">Get Started 🌟🗺️</button>
+                </div>
+            </div>
+            <div class="col-md-6 text-center">
+                <img src="https://imgs.search.brave.com/_j-0HeahJ-RESxL9Un3I7ImBB31TN48VhxuVHOzUxiI/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvNDg5/NTU2NDc4L3Bob3Rv/L3RyYXZlbGxpbmct/dG9vbHMuanBnP3M9/NjEyeDYxMiZ3PTAm/az0yMCZjPVF0TEdD/Wm5Pckg1dnk4UTM5/SGk5ZDZUVjNfSU14/YjNramdkTkRoOFFa/Sms9" alt="Smart City Traveler" class="img-fluid" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5 py-5 fade-in">
+    <!-- How It Works Section -->
+    <section class="mb-5">
+        <h2 class="text-center mb-4 fs-3 fw-bold" data-aos="fade-up">How It Works</h2>
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-right">
+                <div class="step text-center feature-card shadow-lg" data-tilt>
+                    <div class="card-body">
+                        <i class="fas fa-heart fa-3x mb-3"></i>
+                        <h5 class="card-title fs-5">Pick Your Interests</h5>
+                        <p class="card-text">Choose from street food, heritage, festivals, or culture.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="step text-center feature-card shadow-lg" data-tilt>
+                    <div class="card-body">
+                        <i class="fas fa-calendar-alt fa-3x mb-3"></i>
+                        <h5 class="card-title fs-5">Set Your Schedule</h5>
+                        <p class="card-text">Select your city, date, and time for a custom plan.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-left" data-aos-delay="200">
+                <div class="step text-center feature-card shadow-lg" data-tilt>
+                    <div class="card-body">
+                        <i class="fas fa-map fa-3x mb-3"></i>
+                        <h5 class="card-title fs-5">Explore Your Plan</h5>
+                        <p class="card-text">Get a tailored itinerary with top recommendations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Cities Section -->
+    <section class="mb-5">
+        <div class="carousel" data-aos="fade-up">
+            <div class="carousel-inner">
+                <div class="carousel-item">
+                    <img src="https://images.unsplash.com/photo-1598961942613-330038ee6181" alt="Jaipur" loading="lazy">
+                    <div class="overlay">Jaipur: The Pink City</div>
+                    <h5>Jaipur</h5>
+                    <p>Explore majestic palaces and vibrant bazaars.</p>
+                </div>
+                <div class="carousel-item">
+                    <img src="https://images.unsplash.com/photo-1536428399661-3e414f9b9a6d" alt="Varanasi" loading="lazy">
+                    <div class="overlay">Varanasi: Spiritual Heart</div>
+                    <h5>Varanasi</h5>
+                    <p>Experience serenity along the Ganges.</p>
+                </div>
+                <div class="carousel-item">
+                    <img src="https://images.unsplash.com/photo-1564507592333-c421f4a3d270" alt="Mumbai" loading="lazy">
+                    <div class="overlay">Mumbai: City of Dreams</div>
+                    <h5>Mumbai</h5>
+                    <p>Discover the vibrant pulse of Bollywood.</p>
+                </div>
+            </div>
+            <div class="carousel-controls">
+                <button onclick="moveCarousel(-1)">⬅️</button>
+                <button onclick="moveCarousel(1)">➡️</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features/Benefits Section -->
+    <section class="mb-5">
+        <h2 class="text-center mb-4 fs-3 fw-bold" data-aos="fade-up">Why Choose Us?</h2>
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="zoom-in">
+                <div class="feature-card shadow-lg text-center" data-tilt>
+                    <div class="card-body">
+                        <i class="fas fa-clock fa-3x mb-3"></i>
+                        <h5 class="card-title fs-5">Fast Planning</h5>
+                        <p class="card-text">Create your trip itinerary in minutes.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="zoom-in" data-aos-delay="100">
+                <div class="feature-card shadow-lg text-center" data-tilt>
+                    <div class="card-body">
+                        <i class="fas fa-map-pin fa-3x mb-3"></i>
+                        <h5 class="card-title fs-5">Smart Recommendations</h5>
+                        <p class="card-text">Curated suggestions powered by Foursquare.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="zoom-in" data-aos-delay="200">
+                <div class="feature-card shadow-lg text-center" data-tilt>
+                    <div class="card-body">
+                        <i class="fas fa-share-alt fa-3x mb-3"></i>
+                        <h5 class="card-title fs-5">Seamless Sharing</h5>
+                        <p class="card-text">Share your plans with friends effortlessly.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Explore Interests Section -->
+    <section class="mb-5">
+        <h2 class="text-center mb-4 fs-3 fw-bold" data-aos="fade-up">Explore Your Interests</h2>
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up">
+                <div class="card interest-card shadow-lg overflow-hidden" data-tilt>
+                    <img src="https://imgs.search.brave.com/icirF0Swa6cGud5yOVZY6oR4p0JDLg97LmgSzZN6f14/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy9j/L2MzL1N0cmVldEZv/b2RZYW5nb24uanBn" class="card-img-top" alt="Food" loading="lazy">
+                    <div class="card-body">
+                        <h5 class="card-title fs-5">Street Food</h5>
+                        <p class="card-text">Savor authentic Indian street food and regional delicacies.</p>
+                        <a href="{{ url_for('create_schedule') }}?interest=street-food" class="btn btn-outline-primary">Explore Food 🍴🌶️</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card interest-card shadow-lg overflow-hidden" data-tilt>
+                    <img src="https://imgs.search.brave.com/Xnl-MN_A4PurhDUy1hAs3mrigeNUjd3yaJX9zrpmIPY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTM0/MTQwOTA3Mi9waG90/by9ncm91cC1vZi11/bnJlY29nbml6YWJs/ZS1mZW1hbGVzLXNo/b3dpbmctaGVubmEt/aGFuZHMuanBnP3M9/NjEyeDYxMiZ3PTAm/az0yMCZjPS0xUlFH/VVRXMjdrZzRUTDBS/ZmVKZXpEdmNWZGxS/WFN1QzJ3a0liUEIt/Vjg9" class="card-img-top" alt="Festivals" loading="lazy">
+                    <div class="card-body">
+                        <h5 class="card-title fs-5">Festivals</h5>
+                        <p class="card-text">Join vibrant celebrations like Diwali and Holi.</p>
+                        <a href="{{ url_for('create_schedule') }}?interest=festivals" class="btn btn-outline-primary">Explore Festivals 🎉✨</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card interest-card shadow-lg overflow-hidden" data-tilt>
+                    <img src="https://imgs.search.brave.com/poUP0Z7qxWUynjTHv_U7Rtv_C27c-KoBZnqhxqBPfvQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA2LzEzLzA4LzYw/LzM2MF9GXzYxMzA4/NjA0Nl9ucG1yVUV3/QmFBVUI5b21lUjNn/aVhuQnB1S3o2TTVu/Si5qcGc" class="card-img-top" alt="Heritage" loading="lazy">
+                    <div class="card-body">
+                        <h5 class="card-title fs-5">Heritage</h5>
+                        <p class="card-text">Discover ancient temples, forts, and UNESCO sites.</p>
+                        <a href="{{ url_for('create_schedule') }}?interest=heritage" class="btn btn-outline-primary">Explore Heritage 🏰🕌</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="mb-5">
+        <h2 class="text-center mb-4 fs-3 fw-bold" data-aos="fade-up">What Travellers Say</h2>
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up">
+                <div class="card feature-card shadow-lg text-center" data-tilt>
+                    <div class="card-body">
+                        <p class="card-text">"Smart City Traveller made my Jaipur trip unforgettable!"</p>
+                        <h6 class="card-subtitle mb-2 text-muted">Priya Sharma</h6>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card feature-card shadow-lg text-center" data-tilt>
+                    <div class="card-body">
+                        <p class="card-text">"Planning Varanasi was a breeze with this app."</p>
+                        <h6 class="card-subtitle mb-2 text-muted">Rahul Verma</h6>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card feature-card shadow-lg text-center" data-tilt>
+                    <div class="card-body">
+                        <p class="card-text">"Found Mumbai’s hidden gems so easily!"</p>
+                        <h6 class="card-subtitle mb-2 text-muted">Ananya Patel</h6>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="cta-section" data-aos="fade-up">
+        <div class="container">
+            <h2 class="fs-3 fw-bold mb-4">Plan Your Next Indian Adventure</h2>
+            <p class="fs-5 mb-4">Join thousands of travellers exploring India’s vibrant cities.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg" aria-label="Sign up now">Sign Up Now 🚀</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg" aria-label="Sign in to your account">Sign In 🔑</a>
+            </div>
+        </div>
+    </section><br>
+
+    <!-- Extra Content: Travel Inspiration Section -->
+    <section class="mb-5">
+        <h2 class="text-center mb-4 fs-3 fw-bold" data-aos="fade-up">Travel Inspiration</h2>
+        <div class="row g-4">
+            <div class="col-md-6" data-aos="fade-up">
+                <div class="card feature-card shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1611492562504-2763b7dd0c43" class="card-img-top" alt="Kerala Backwaters" loading="lazy">
+                    <div class="card-body">
+                        <h5 class="card-title fs-5">Kerala Backwaters</h5>
+                        <p class="card-text">Cruise through serene waters and lush greenery.</p>
+                        <a href="{{ url_for('create_schedule') }}?city=kerala" class="btn btn-outline-primary">Plan Your Trip ⛵🌴</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="card feature-card shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1560160644-0755c8e0cd89" class="card-img-top" alt="Rishikesh Yoga" loading="lazy">
+                    <div class="card-body">
+                        <h5 class="card-title fs-5">Rishikesh Yoga Retreats</h5>
+                        <p class="card-text">Find peace with yoga by the Ganges.</p>
+                        <a href="{{ url_for('create_schedule') }}?city=rishikesh" class="btn btn-outline-primary">Plan Your Trip 🧘‍♀️🏞️</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Footer -->
+</footer>
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    (function () {
+        'use strict';
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        // Initialize Vanilla Tilt for 3D card effects
+        VanillaTilt.init(document.querySelectorAll("[data-tilt]"), {
+            max: 15,
+            speed: 400,
+            glare: true,
+            "max-glare": 0.2
+        });
+
+        // Carousel functionality
+        let carouselIndex = 0;
+        const carouselInner = document.querySelector('.carousel-inner');
+        const carouselItems = document.querySelectorAll('.carousel-item').length;
+
+        window.moveCarousel = (direction) => {
+            carouselIndex += direction;
+            if (carouselIndex < 0) carouselIndex = carouselItems - 1;
+            if (carouselIndex >= carouselItems) carouselIndex = 0;
+            carouselInner.style.transform = `translateX(-${carouselIndex * 33.33}%)`;
+        };
+
+        // Search city function
+        window.searchCity = () => {
+            const city = document.querySelector('.search-bar input').value;
+            if (city) {
+                window.location.href = `{{ url_for('create_schedule') }}?city=${encodeURIComponent(city)}`;
+            }
+        };
+
+        // Lazy load images
+        const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+        lazyImages.forEach(img => {
+            img.addEventListener('load', () => {
+                img.style.opacity = '1';
+                img.style.transition = 'opacity 0.5s ease';
+            });
+            img.style.opacity = '0';
+        });
+
+        // Button hover effects
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-2px)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Responsive adjustments
+        const adjustLayout = () => {
+            const width = window.innerWidth;
+            if (width <= 576) {
+                document.querySelectorAll('.card').forEach(card => {
+                    card.style.marginBottom = '1rem';
+                });
+                document.querySelector('.hero-section h1').style.fontSize = '1.8rem';
+                document.querySelector('.hero-section p').style.fontSize = '1rem';
+                carouselInner.style.transform = `translateX(-${carouselIndex * 100}%)`;
+            } else if (width <= 768) {
+                carouselInner.style.transform = `translateX(-${carouselIndex * 50}%)`;
+            } else {
+                document.querySelectorAll('.card').forEach(card => {
+                    card.style.marginBottom = '1.5rem';
+                });
+                document.querySelector('.hero-section h1').style.fontSize = '3rem';
+                document.querySelector('.hero-section p').style.fontSize = '1.25rem';
+                carouselInner.style.transform = `translateX(-${carouselIndex * 33.33}%)`;
+            }
+        };
+        adjustLayout();
+        window.addEventListener('resize', adjustLayout);
+
+        // Keyboard navigation
+        document.querySelectorAll('.btn, a').forEach(element => {
+            element.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    element.click();
+                }
+            });
+        });
+
+        // Accessibility enhancements
+        document.querySelectorAll('a').forEach(link => {
+            if (!link.getAttribute('aria-label')) {
+                link.setAttribute('aria-label', link.textContent || 'Navigate to section');
+            }
+        });
+
+        // Smooth scroll for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(anchor.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Log page load
+        console.log('Home page loaded at:', new Date().toISOString());
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,482 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Smart City Traveller{% endblock %}
+{% block content %}
+<style>
+    /* Background Image for the Dashboard Page */
+    body {
+        background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+    }
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7); /* Dark overlay to match the theme */
+        z-index: -1;
+    }
+    /* Card Styling */
+    .card {
+        background: #3a3a3a; /* Dark gray to match the dark theme */
+        border: none;
+        border-radius: 15px;
+        color: #e0e0e0; /* Light gray text */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    /* List Group Item Styling */
+    .list-group-item {
+    background: #2c2c2c; /* Slightly darker than card for contrast */
+    border: 1px solid #66b0ff; /* Light blue border */
+    border-radius: 10px;
+    color: #e0e0e0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.list-group-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    background: #2c2c2c; /* Explicitly set the background to the same as non-hover state */
+}
+    /* Buttons */
+    .btn-primary {
+        background: #66b0ff; /* Light blue button */
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+    .btn-primary:hover {
+        background: #4d9bff; /* Slightly darker blue on hover */
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    .btn-outline-secondary {
+    background: #0410f4; /* Soft orange background */
+    border: 1px solid #0410f4; /* Match border to background */
+    color: #ffffff; /* White text for contrast */
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-outline-secondary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 159, 51, 0.3), transparent); /* Adjusted shine effect to match orange */
+    transition: 0.5s;
+}
+
+.btn-outline-secondary:hover::before {
+    left: 100%;
+}
+
+.btn-outline-secondary:hover {
+    background: #0410f4; /* Slightly darker orange on hover */
+    border-color: #0410f4; /* Match border to new background */
+    color: #ffffff;
+    transform: scale(1.05);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+    .btn-danger {
+        background: #ff4d4d; /* Red button */
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-danger::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 77, 77, 0.3), transparent);
+        transition: 0.5s;
+    }
+    .btn-danger:hover::before {
+        left: 100%;
+    }
+    .btn-danger:hover {
+        background: #e63939; /* Slightly darker red on hover */
+        transform: scale(1.05);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    }
+    .btn-info {
+        background: #28a745; /* Green button for email */
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-info::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(40, 167, 69, 0.3), transparent);
+        transition: 0.5s;
+    }
+    .btn-info:hover::before {
+        left: 100%;
+    }
+    .btn-info:hover {
+        background: #218838; /* Slightly darker green on hover */
+        transform: scale(1.05);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    }
+    .btn-success {
+        background: #66b0ff; /* Light blue button to match theme */
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-success::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    .btn-success:hover::before {
+        left: 100%;
+    }
+    .btn-success:hover {
+        background: #4d9bff; /* Slightly darker blue on hover */
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    /* Alert Styling */
+    .alert {
+        border-radius: 8px;
+        color: #ffffff;
+    }
+    .alert-danger {
+        background: #ff4d4d; /* Red for error messages */
+        border: none;
+    }
+    .alert-success {
+        background: #28a745; /* Green for success messages */
+        border: none;
+    }
+    .btn-close {
+        filter: invert(1); /* Makes the close button white for visibility */
+    }
+    /* General Text */
+    .text-center {
+        color: #e0e0e0;
+    }
+    .text-muted {
+        color: #a0a0a0 !important; /* Light gray for muted text */
+    }
+    h2, h3, h5 {
+        color: #ffffff;
+    }
+    .list-group-item p {
+        color: #e0e0e0;
+    }
+    /* Icon Styling */
+    .fas.fa-calendar-alt {
+        transition: transform 0.3s ease;
+    }
+    .fas.fa-calendar-alt:hover {
+        transform: scale(1.1);
+    }
+</style>
+<div class="container mt-5 py-5 fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card p-5 shadow-lg">
+                <h2 class="text-center mb-4 fs-3 fw-bold">Welcome, {{ session.user.displayName | default('Traveller') }}!🌍</h2>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <div class="mb-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="fs-4 fw-bold">Your Schedules📅</h3>
+                        <p class="text-muted">Manage your travel plans and explore new destinations✈️</p>
+                    </div>
+                </div>
+                {% if schedules %}
+                    <div class="list-group mb-4">
+                        {% for schedule in schedules %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center p-4 mb-3 shadow-sm">
+                                <div>
+                                    <h5 class="mb-1 fw-bold">{{ schedule.city | capitalize }}🏙️</h5>
+                                    <p class="mb-1"><strong>Date:</strong> {{ schedule.date | default('N/A') }}📆</p>
+                                    <p class="mb-1"><strong>Time:</strong> {{ schedule.start_time | default('N/A') }} - {{ schedule.end_time | default('N/A') }}⏰</p>
+                                    <p class="mb-0 text-muted"><strong>Interests:</strong> {{ schedule.interests | capitalize }}🎉</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('results', schedule_id=schedule.id) }}" class="btn btn-primary btn-sm">View👀</a>
+                                    <a href="{{ url_for('create_schedule', schedule_id=schedule.id) }}" class="btn btn-outline-secondary btn-sm">Edit✏️</a>
+                                    <button class="btn btn-danger btn-sm delete-schedule" data-schedule-id="{{ schedule.id }}">Delete🗑️</button>
+                                    <button class="btn btn-info btn-sm email-schedule" data-schedule-id="{{ schedule.id }}">Send Email✉️</button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                        <p class="fs-5 text-muted">No schedules found. Let's plan your next adventure!🌴</p>
+                        <a href="{{ url_for('create_schedule') }}" class="btn btn-primary">Create Your First Schedule🗺️</a>
+                    </div>
+                {% endif %}
+                <div class="text-center">
+                    <a href="{{ url_for('create_schedule') }}" class="btn btn-success">Create New Schedule➕</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        // Initialize Firebase
+        try {
+            const firebaseConfig = {{ config.firebase | tojson | safe }};
+            firebase.initializeApp(firebaseConfig);
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                Failed to connect to services. Please try again later.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.querySelector('.card').prepend(alertDiv);
+            return;
+        }
+
+        const auth = firebase.auth();
+
+        // Logout handler
+        const logoutButton = document.getElementById('logout-button');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+                localStorage.setItem('loggingOut', 'true');
+                try {
+                    await auth.signOut();
+                    window.location.href = '/logout';
+                } catch (error) {
+                    console.error('Firebase sign-out error:', error);
+                    window.location.href = '/logout';
+                }
+            });
+        }
+
+        // Handle delete schedule
+        document.querySelectorAll('.delete-schedule').forEach(button => {
+            button.addEventListener('click', async () => {
+                const scheduleId = button.dataset.scheduleId;
+                if (!confirm('Are you sure you want to delete this schedule?')) return;
+
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...';
+
+                try {
+                    const response = await fetch(`/delete_schedule/${scheduleId}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        button.closest('.list-group-item').remove();
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                        alertDiv.innerHTML = `
+                            Schedule deleted successfully!
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        `;
+                        document.querySelector('.card').prepend(alertDiv);
+                    } else {
+                        throw new Error(result.error || 'Failed to delete schedule.');
+                    }
+                } catch (error) {
+                    console.error('Delete schedule error:', error);
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        Failed to delete schedule: ${error.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    document.querySelector('.card').prepend(alertDiv);
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = 'Delete';
+                }
+            });
+        });
+
+        // Handle send email
+        document.querySelectorAll('.email-schedule').forEach(button => {
+            button.addEventListener('click', async () => {
+                const scheduleId = button.dataset.scheduleId;
+
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+
+                try {
+                    const response = await fetch(`/email_schedule/${scheduleId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                        alertDiv.innerHTML = `
+                            Schedule emailed successfully!
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        `;
+                        document.querySelector('.card').prepend(alertDiv);
+                    } else {
+                        throw new Error(result.error || 'Failed to send email.');
+                    }
+                } catch (error) {
+                    console.error('Send email error:', error);
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        Failed to send email: ${error.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    document.querySelector('.card').prepend(alertDiv);
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = 'Send Email';
+                }
+            });
+        });
+
+        // Animate schedule items (optimized)
+        const scheduleItems = document.querySelectorAll('.list-group-item');
+        scheduleItems.forEach((item, index) => {
+            if (index < 10) { // Limit to first 10 items to avoid performance issues
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.5s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 100);
+            } else {
+                item.style.opacity = '1';
+            }
+        });
+
+        // Hover effects for buttons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-2px)';
+                btn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translateY(0)';
+                btn.style.boxShadow = 'none';
+            });
+        });
+
+        // Responsive adjustments
+        const adjustLayout = () => {
+            const width = window.innerWidth;
+            if (width <= 576) {
+                document.querySelectorAll('.list-group-item').forEach(item => {
+                    item.style.padding = '1rem';
+                    item.querySelectorAll('.btn').forEach(btn => {
+                        btn.classList.add('btn-sm');
+                    });
+                });
+            } else {
+                document.querySelectorAll('.list-group-item').forEach(item => {
+                    item.style.padding = '1.5rem';
+                    item.querySelectorAll('.btn').forEach(btn => {
+                        btn.classList.remove('btn-sm');
+                    });
+                });
+            }
+        };
+        adjustLayout();
+        window.addEventListener('resize', adjustLayout);
+
+        // Keyboard navigation for accessibility
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    btn.click();
+                }
+            });
+        });
+
+        // Prevent form resubmission
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+{% block title %}Log In - Smart City Traveller{% endblock %}
+{% block content %}
+<style>
+    /* Background Image for the Login Page */
+    body {
+        background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+    }
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7); /* Dark overlay to match the theme */
+        z-index: -1;
+    }
+    /* Card Styling */
+    .card {
+        background: #3a3a3a; /* Dark gray to match the dark theme */
+        border: none;
+        border-radius: 15px;
+        color: #e0e0e0; /* Light gray text */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    /* Form Inputs */
+    .form-control {
+        background: #2c2c2c; /* Darker input background */
+        border: 1px solid #66b0ff; /* Light blue border */
+        color: #e0e0e0;
+        border-radius: 8px;
+        transition: border-color 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #4d9bff; /* Slightly darker blue on focus */
+        box-shadow: 0 0 5px rgba(102, 176, 255, 0.5);
+        background: #2c2c2c;
+        color: #e0e0e0;
+    }
+    .form-control::placeholder {
+        color: #a0a0a0; /* Placeholder text color */
+    }
+    .form-label {
+        color: #e0e0e0;
+        font-weight: 500;
+    }
+    /* Log In Button */
+    .btn-primary {
+        background: #66b0ff; /* Light blue button */
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+    .btn-primary:hover {
+        background: #4d9bff; /* Slightly darker blue on hover */
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    .btn-primary:disabled {
+        background: #4a4a4a; /* Grayed out when disabled */
+        cursor: not-allowed;
+    }
+    /* Sign Up Button/Link Styling */
+    .signup-btn {
+        display: inline-block;
+        background: transparent;
+        color: #66b0ff;
+        padding: 8px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    .signup-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(102, 176, 255, 0.3), transparent);
+        transition: 0.5s;
+    }
+    .signup-btn:hover::before {
+        left: 100%;
+    }
+    .signup-btn:hover {
+        background: #66b0ff;
+        color: #ffffff;
+        transform: scale(1.05);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        text-decoration: none;
+    }
+    /* Forgot Password Button/Link Styling */
+    .forgot-password-btn {
+        display: inline-block;
+        background: transparent;
+        color: #ff6f61; /* Coral text */
+        padding: 8px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    .forgot-password-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 111, 97, 0.3), transparent);
+        transition: 0.5s;
+    }
+    .forgot-password-btn:hover::before {
+        left: 100%;
+    }
+    .forgot-password-btn:hover {
+        background: #ff6f61;
+        color: #ffffff;
+        transform: scale(1.05);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        text-decoration: none;
+    }
+    /* Emoji Animation for Forgot Password */
+    .forgot-password-btn .emoji {
+        display: inline-block;
+        margin-left: 5px;
+        transition: transform 0.3s ease;
+    }
+    .forgot-password-btn:hover .emoji {
+        transform: rotate(20deg);
+    }
+    /* Alert Styling */
+    .alert {
+        border-radius: 8px;
+        color: #ffffff;
+    }
+    .alert-danger {
+        background: #ff4d4d; /* Red for error messages */
+        border: none;
+    }
+    .alert-success {
+        background: #28a745; /* Green for success messages */
+        border: none;
+    }
+    .btn-close {
+        filter: invert(1); /* Makes the close button white for visibility */
+    }
+    /* General Text */
+    .text-center {
+        color: #e0e0e0;
+    }
+    h2 {
+        color: #ffffff;
+    }
+    /* Password Visibility Toggle Button Styling */
+    .password-toggle {
+        position: relative;
+    }
+    .password-toggle .form-control {
+        padding-right: 40px; /* Space for the eye icon */
+    }
+    .password-toggle .toggle-btn {
+        position: absolute;
+        right: 10px;
+        top: 70%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #66b0ff; /* Light blue to match theme */
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+    }
+    .password-toggle .toggle-btn:hover {
+        color: #4d9bff; /* Slightly darker blue on hover */
+    }
+</style>
+<div class="container mt-5 py-5 fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card p-4 shadow-lg">
+                <h2 class="text-center mb-4 fs-3 fw-bold">Log In</h2>
+                <div id="error-message" class="alert alert-danger d-none" role="alert"></div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form id="login-form">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address📧</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3 password-toggle">
+                        <label for="password" class="form-label">Password🔑</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <button type="button" class="toggle-btn" id="toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="login-button"><b>Log In🚀</b></button>
+                </form>
+                <p class="text-center mt-3">
+                    <br><b>Don't have an account?</b><br><a href="{{ url_for('signup') }}" class="signup-btn">Join the Journey!✈️🌍</a>
+                </p>
+                <p class="text-center">
+                    <b>Lost Your Key?</b><br><a href="{{ url_for('forgot_password') }}" class="forgot-password-btn">Get new Key?🔒<span class="emoji"></span></a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        // Initialize Firebase
+        let isSyncing = false;
+        try {
+            const firebaseConfig = {{ config.firebase | tojson | safe }};
+            firebase.initializeApp(firebaseConfig);
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            showError('Failed to connect to services. Please try again later.');
+            return;
+        }
+
+        const auth = firebase.auth();
+        const form = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+        const loginButton = document.getElementById('login-button');
+
+        // Password visibility toggle functionality
+        const passwordInput = document.getElementById('password');
+        const togglePassword = document.getElementById('toggle-password');
+        const toggleIcon = togglePassword.querySelector('i');
+
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            toggleIcon.classList.toggle('fa-eye');
+            toggleIcon.classList.toggle('fa-eye-slash');
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('d-none');
+            setTimeout(() => {
+                errorMessage.classList.add('d-none');
+            }, 5000);
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginButton.disabled = true;
+            loginButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Logging In...';
+            isSyncing = true;
+
+            const email = form.email.value;
+            const password = form.password.value;
+
+            try {
+                // Sign in with Firebase Authentication
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Get ID token
+                const idToken = await user.getIdToken();
+
+                // Sync session with backend
+                const response = await fetch('/sync-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        uid: user.uid,
+                        email: user.email,
+                        id_token: idToken,
+                        displayName: user.displayName || ''
+                    })
+                });
+
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    isSyncing = false;
+                    window.location.href = '/dashboard';
+                } else {
+                    throw new Error(result.error || 'Failed to sync session.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                let message = 'An error occurred. Please try again.';
+                if (error.code === 'auth/user-not-found') {
+                    message = 'No account found with this email.';
+                } else if (error.code === 'auth/wrong-password') {
+                    message = 'Incorrect password. Please try again.';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Invalid email address.';
+                }
+                showError(message);
+            } finally {
+                loginButton.disabled = false;
+                loginButton.innerHTML = 'Log In';
+                isSyncing = false;
+            }
+        });
+
+        // Check authentication state
+        auth.onAuthStateChanged(user => {
+            if (user && !isSyncing && !localStorage.getItem('loggingOut')) {
+                console.log('User authenticated, syncing session:', user.uid);
+                fetch('/sync-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        uid: user.uid,
+                        email: user.email,
+                        id_token: user.getIdToken(),
+                        displayName: user.displayName || ''
+                    })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        window.location.href = '/dashboard';
+                    } else {
+                        console.error('Session sync failed:', result.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Session sync error:', error);
+                });
+            }
+        });
+    })();
+</script>
+{% endblock %}

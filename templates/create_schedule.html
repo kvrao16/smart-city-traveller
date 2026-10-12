@@ -1,0 +1,684 @@
+{% extends 'base.html' %}
+{% block title %}Create Schedule - Smart City Traveller{% endblock %}
+{% block content %}
+<style>
+    /* Background Image for the Create Schedule Page */
+    body {
+        background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+    }
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7); /* Dark overlay to match the theme */
+        z-index: -1;
+    }
+    /* Card Styling */
+    .card {
+        background: #3a3a3a; /* Dark gray to match the dark theme */
+        border: none;
+        border-radius: 15px;
+        color: #e0e0e0; /* Light gray text */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    /* Form Inputs */
+    .form-control {
+        background: #2c2c2c; /* Darker input background */
+        border: 1px solid #66b0ff; /* Light blue border */
+        color: #e0e0e0;
+        border-radius: 8px;
+        transition: border-color 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #4d9bff; /* Slightly darker blue on focus */
+        box-shadow: 0 0 5px rgba(102, 176, 255, 0.5);
+        background: #2c2c2c;
+        color: #e0e0e0;
+    }
+    .form-control::placeholder {
+        color: #a0a0a0; /* Placeholder text color */
+    }
+    .form-label {
+        color: #e0e0e0;
+        font-weight: 500;
+    }
+    /* Form Checkboxes */
+    .form-check-input {
+        border: 1px solid #66b0ff;
+        background: #2c2c2c;
+    }
+    .form-check-input:checked {
+        background-color: #66b0ff;
+        border-color: #66b0ff;
+    }
+    .form-check-label {
+        color: #e0e0e0;
+    }
+    /* Buttons */
+    .btn-primary {
+        background: #66b0ff; /* Light blue button */
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+    .btn-primary:hover {
+        background: #4d9bff; /* Slightly darker blue on hover */
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    .btn-primary:disabled {
+        background: #4a4a4a; /* Grayed out when disabled */
+        cursor: not-allowed;
+    }
+    .btn-secondary {
+        background: #4a4a4a; /* Dark gray button */
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-weight: 600;
+        color: #e0e0e0;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-secondary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    .btn-secondary:hover::before {
+        left: 100%;
+    }
+    .btn-secondary:hover {
+        background: #5a5a5a; /* Slightly lighter gray on hover */
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    .btn-outline-danger {
+        border: 1px solid #ff4d4d;
+        color: #ff4d4d;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-outline-danger::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 77, 77, 0.3), transparent);
+        transition: 0.5s;
+    }
+    .btn-outline-danger:hover::before {
+        left: 100%;
+    }
+    .btn-outline-danger:hover {
+        background: #ff4d4d;
+        color: #ffffff;
+        transform: scale(1.05);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    }
+    /* List Group Item Styling */
+   .list-group-item {
+    background: #2c2c2c; /* Slightly darker than card for contrast */
+    border: 1px solid #66b0ff; /* Light blue border */
+    border-radius: 10px;
+    color: #e0e0e0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.list-group-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    background: #2c2c2c; /* Explicitly set the background to the same as non-hover state */
+}
+    /* Alert Styling */
+    .alert {
+        border-radius: 8px;
+        color: #ffffff;
+    }
+    .alert-danger {
+        background: #ff4d4d; /* Red for error messages */
+        border: none;
+    }
+    .alert-success {
+        background: #28a745; /* Green for success messages */
+        border: none;
+    }
+    .btn-close {
+        filter: invert(1); /* Makes the close button white for visibility */
+    }
+    /* General Text */
+    .text-center {
+        color: #e0e0e0;
+    }
+    .text-muted {
+        color: #a0a0a0 !important; /* Light gray for muted text */
+    }
+    .text-danger {
+        color: #ff4d4d !important;
+    }
+    h2, h3 {
+        color: #ffffff;
+    }
+    /* Invalid Feedback */
+    .invalid-feedback {
+        color: #ff4d4d;
+    }
+    /* Spinner */
+    .spinner-border {
+        border-color: #66b0ff;
+        border-right-color: transparent;
+    }
+    /* Venue Radio */
+    .venue-radio {
+        border: 1px solid #66b0ff;
+        background: #2c2c2c;
+    }
+    .venue-radio:checked {
+        background-color: #66b0ff;
+        border-color: #66b0ff;
+    }
+</style>
+<div class="container mt-5 py-5 fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card p-5 shadow-lg">
+                <h2 class="text-center mb-4 fs-3 fw-bold">{{ 'Edit Schedule' if schedule else 'Create Schedule' }} 🗺️</h2>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form id="schedule-form" method="POST" action="{{ url_for('create_schedule', schedule_id=schedule.id if schedule else '') }}" class="needs-validation" novalidate>
+                    <!-- Step 1: Interest Selection and Basic Info -->
+                    <div class="step" id="step-1">
+                        <h3 class="mb-4">Step 1: Select Interests and Details🎯</h3>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Interests🎉 <span class="text-danger"></span></label>
+                            <div class="row">
+                                <div class="col-md-4 form-check">
+                                    <input type="checkbox" name="interests" value="food" class="form-check-input" id="interest-food" {% if schedule and 'food' in schedule.interests %}checked{% endif %}>
+                                    <label class="form-check-label" for="interest-food">Food🍴</label>
+                                </div>
+                                <div class="col-md-4 form-check">
+                                    <input type="checkbox" name="interests" value="coffee" class="form-check-input" id="interest-coffee" {% if schedule and 'coffee' in schedule.interests %}checked{% endif %}>
+                                    <label class="form-check-label" for="interest-coffee">Coffee☕</label>
+                                </div>
+                                <div class="col-md-4 form-check">
+                                    <input type="checkbox" name="interests" value="historical places" class="form-check-input" id="interest-historical" {% if schedule and 'historical places' in schedule.interests %}checked{% endif %}>
+                                    <label class="form-check-label" for="interest-historical">Historical Places🏰</label>
+                                </div>
+                                <div class="col-md-4 form-check">
+                                    <input type="checkbox" name="interests" value="parks" class="form-check-input" id="interest-parks" {% if schedule and 'parks' in schedule.interests %}checked{% endif %}>
+                                    <label class="form-check-label" for="interest-parks">Parks🌳</label>
+                                </div>
+                                <div class="col-md-4 form-check">
+                                    <input type="checkbox" name="interests" value="arts & culture" class="form-check-input" id="interest-arts" {% if schedule and 'arts & culture' in schedule.interests %}checked{% endif %}>
+                                    <label class="form-check-label" for="interest-arts">Arts & Culture🎨</label>
+                                </div>
+                            </div>
+                            <div class="invalid-feedback d-block" id="interests-error" style="display: none;"></div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="city" class="form-label fw-bold">City🏙️ <span class="text-danger"></span></label>
+                            <input type="text" name="city" id="city" class="form-control" value="{{ schedule.city if schedule else '' }}" required>
+                            <div class="invalid-feedback">Please enter a city.</div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="date" class="form-label fw-bold">Date📅 <span class="text-danger"></span></label>
+                            <input type="date" name="date" id="date" class="form-control"
+                                value="{{ schedule.date if schedule else '' }}"
+                                min="{{ (schedule.date if schedule else '') or '' }}" required>
+                            <div class="invalid-feedback">Please select a valid date.</div>
+                        </div>
+                        <script>
+                            // Set today's date as default and min if not editing
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const dateInput = document.getElementById('date');
+                                if (!dateInput.value) {
+                                    const today = new Date();
+                                    const yyyy = today.getFullYear();
+                                    const mm = String(today.getMonth() + 1).padStart(2, '0');
+                                    const dd = String(today.getDate()).padStart(2, '0');
+                                    const todayStr = `${yyyy}-${mm}-${dd}`;
+                                    dateInput.value = todayStr;
+                                    dateInput.min = todayStr;
+                                }
+                            });
+                        </script>
+                        <div class="mb-4">
+                            <label for="start_time" class="form-label fw-bold">Start Time⏰ <span class="text-danger">*</span></label>
+                            <input type="time" name="start_time" id="start_time" class="form-control" value="{{ schedule.start_time if schedule else '' }}" required>
+                            <div class="invalid-feedback">Please select a start time.</div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="end_time" class="form-label fw-bold">End Time⏰ <span class="text-danger">*</span></label>
+                            <input type="time" name="end_time" id="end_time" class="form-control" value="{{ schedule.end_time if schedule else '' }}" required>
+                            <div class="invalid-feedback">Please select an end time.</div>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <button type="button" class="btn btn-primary w-100" id="next-step-1">Next➡️</button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary w-100">Cancel🚫</a>
+                        </div>
+                    </div>
+                    <!-- Step 2: Sequential Place Selection -->
+                    <div class="step" id="step-2" style="display: none;">
+                        <h3 class="mb-4">Step 2: Select Places📍</h3>
+                        <div id="current-interest" class="mb-4"></div>
+                        <div id="venues-list" class="list-group mb-3"></div>
+                        <div id="venues-error" class="text-danger mt-2" style="display: none;"></div>
+                        <div class="d-flex gap-3">
+                            <button type="button" class="btn btn-secondary w-100" id="prev-step-2">Previous⬅️</button>
+                            <button type="button" class="btn btn-primary w-100" id="next-step-2" disabled>Select Place✅</button>
+                        </div>
+                    </div>
+                    <!-- Step 3: Schedule Confirmation -->
+                    <div class="step" id="step-3" style="display: none;">
+                        <h3 class="mb-4">Step 3: Confirm Schedule✔️</h3>
+                        <div id="itinerary-summary" class="list-group mb-4"></div>
+                        <input type="hidden" name="selected_venues" id="selected_venues">
+                        <div class="d-flex gap-3">
+                            <button type="button" class="btn btn-secondary w-100" id="prev-step-3">Previous⬅️</button>
+                            <button type="submit" class="btn btn-primary w-100">Save Schedule💾</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    (function () {
+        'use strict';
+
+        // Initialize variables
+        const config = {{ config | tojson | safe }};
+        const schedule = {{ schedule | tojson | safe }};
+        let selectedVenues = schedule && schedule.venues ? schedule.venues : [];
+        let currentStep = 1;
+        let currentInterestIndex = 0;
+        let interests = [];
+        let yourLocation = null;
+
+        // Foursquare category mappings
+        const interestToFoursquare = {
+            'food': '4d4b7105d754a06374d81259',
+            'coffee': '4bf58dd8d48988d1e0931735',
+            'historical places': '4deefb944765f83613cdba6e',
+            'parks': '4bf58dd8d48988d163941735',
+            'nightlife': '4d4b7105d754a06376d81259',
+            'arts & culture': '4bf58dd8d48988d181941735'
+        };
+
+        // Get user location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    yourLocation = {
+                        id: 'your-location',
+                        name: 'Your Location',
+                        location: {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                            formattedAddress: ['Current Location']
+                        },
+                        category: '',
+                        rating: null,
+                        phone: 'N/A',
+                        website: 'N/A',
+                        hours: 'N/A',
+                        price: null,
+                        description: 'N/A',
+                        categories: [],
+                        photos: []
+                    };
+                    selectedVenues = selectedVenues.filter(v => v.id !== 'your-location');
+                    selectedVenues.unshift(yourLocation);
+                    console.log('Geolocation obtained:', yourLocation);
+                },
+                error => {
+                    console.warn('Geolocation failed:', error);
+                    document.getElementById('venues-error').textContent = 'Unable to get your location. Please select venues manually.';
+                    document.getElementById('venues-error').style.display = 'block';
+                }
+            );
+        } else {
+            console.warn('Geolocation not supported by browser');
+            document.getElementById('venues-error').textContent = 'Geolocation not supported. Please select venues manually.';
+            document.getElementById('venues-error').style.display = 'block';
+        }
+
+        // Show/hide steps
+        function showStep(step) {
+            document.querySelectorAll('.step').forEach(s => s.style.display = 'none');
+            document.getElementById(`step-${step}`).style.display = 'block';
+            currentStep = step;
+            if (step === 2) {
+                fetchVenuesForInterest();
+            } else if (step === 3) {
+                updateItinerarySummary();
+            }
+        }
+
+        // Fetch venues for current interest
+        async function fetchVenuesForInterest() {
+            const city = document.getElementById('city').value.trim();
+            const currentInterest = interests[currentInterestIndex];
+            const errorDiv = document.getElementById('venues-error');
+            const venuesList = document.getElementById('venues-list');
+            document.getElementById('current-interest').textContent = `Select a place for ${currentInterest} 📍`;
+
+            if (!city || !currentInterest) {
+                errorDiv.textContent = 'Please enter a city and select an interest.';
+                errorDiv.style.display = 'block';
+                venuesList.innerHTML = '';
+                return;
+            }
+
+            errorDiv.style.display = 'none';
+            venuesList.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p>Loading venues...</p></div>';
+
+            try {
+                const categoryId = interestToFoursquare[currentInterest];
+                const url = `https://api.foursquare.com/v2/venues/search?client_id=${config.foursquare.client_id}&client_secret=${config.foursquare.client_secret}&v=20250519&near=${encodeURIComponent(city)}&categoryId=${categoryId}&limit=5`;
+
+                console.log('Fetching venues from:', url.replace(config.foursquare.client_secret, '****'));
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Foursquare API error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                if (data.meta.code !== 200) {
+                    throw new Error(data.meta.errorDetail || 'Failed to fetch venues from Foursquare');
+                }
+
+                const venues = data.response.venues;
+                const detailedVenues = await Promise.all(venues.map(async venue => {
+                    try {
+                        const detailsResponse = await fetch(`/fetch_venue_details/${venue.id}`);
+                        const detailsData = await detailsResponse.json();
+                        if (detailsData.success) {
+                            return detailsData.venue;
+                        } else {
+                            console.warn(`Failed to fetch details for venue ${venue.id}: ${detailsData.error}`);
+                            return {
+                                id: venue.id,
+                                name: venue.name,
+                                location: {
+                                    lat: venue.location.lat,
+                                    lng: venue.location.lng,
+                                    formattedAddress: venue.location.formattedAddress || ['N/A']
+                                },
+                                category: venue.categories[0]?.name || 'Unknown',
+                                rating: null,
+                                phone: 'N/A',
+                                website: 'N/A',
+                                hours: 'N/A',
+                                price: null,
+                                description: 'N/A',
+                                categories: [venue.categories[0]?.name || 'Unknown'],
+                                photos: []
+                            };
+                        }
+                    } catch (error) {
+                        console.warn(`Error fetching details for venue ${venue.id}: ${error}`);
+                        return {
+                            id: venue.id,
+                            name: venue.name,
+                            location: {
+                                lat: venue.location.lat,
+                                lng: venue.location.lng,
+                                formattedAddress: venue.location.formattedAddress || ['N/A']
+                            },
+                            category: venue.categories[0]?.name || 'Unknown',
+                            rating: null,
+                            phone: 'N/A',
+                            website: 'N/A',
+                            hours: 'N/A',
+                            price: null,
+                            description: 'N/A',
+                            categories: [venue.categories[0]?.name || 'Unknown'],
+                            photos: []
+                        };
+                    }
+                }));
+
+                venuesList.innerHTML = detailedVenues.map(venue => {
+                    const address = Array.isArray(venue.location.formattedAddress) ? venue.location.formattedAddress.join(', ') : venue.location.formattedAddress;
+                    return `
+                    <div class="list-group-item d-flex align-items-center">
+                        <input type="radio" name="venue" class="venue-radio me-3" data-venue='${JSON.stringify(venue).replace(/'/g, "'")}' ${selectedVenues.some(v => v.id === venue.id) ? 'checked' : ''}>
+                        <div>
+                            <strong>${venue.name}</strong>
+                            <small class="text-muted d-block">${venue.categories.join(', ')}</small>
+                            <small class="text-muted d-block">${address}</small>
+                            <small class="text-muted d-block"><strong>Coordinates:</strong> Lat: ${venue.location.lat}, Lng: ${venue.location.lng}</small>
+                            ${venue.rating ? `<small class="text-muted d-block"><strong>Rating:</strong> ${venue.rating}/10⭐</small>` : '<small class="text-muted d-block"><strong>Rating:</strong> N/A</small>'}
+                            ${venue.phone !== 'N/A' ? `<small class="text-muted d-block"><strong>Phone:</strong> ${venue.phone}</small>` : '<small class="text-muted d-block"><strong>Phone:</strong> N/A</small>'}
+                            ${venue.website !== 'N/A' ? `<small class="text-muted d-block"><strong>Website:</strong> <a href="${venue.website}" target="_blank">Visit🌐</a></small>` : '<small class="text-muted d-block"><strong>Website:</strong> N/A</small>'}
+                            <small class="text-muted d-block"><strong>Hours:</strong> ${venue.hours}</small>
+                            ${venue.price ? `<small class="text-muted d-block"><strong>Price:</strong> ${'💲'.repeat(venue.price)}</small>` : '<small class="text-muted d-block"><strong>Price:</strong> N/A</small>'}
+                            ${venue.description !== 'N/A' ? `<small class="text-muted d-block"><strong>Description:</strong> ${venue.description}</small>` : ''}
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+
+                document.querySelectorAll('.venue-radio').forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        const venue = JSON.parse(radio.dataset.venue.replace(/'/g, "'"));
+                        selectedVenues = selectedVenues.filter(v => v.id === 'your-location' || interests.indexOf(v.category.toLowerCase()) !== currentInterestIndex);
+                        if (radio.checked && !selectedVenues.some(v => v.id === venue.id)) {
+                            selectedVenues.push(venue);
+                        }
+                        document.getElementById('next-step-2').disabled = false;
+                    });
+                });
+
+                if (yourLocation && !selectedVenues.some(v => v.id === 'your-location')) {
+                    selectedVenues.unshift(yourLocation);
+                }
+            } catch (error) {
+                console.error('Fetch venues error:', error);
+                errorDiv.textContent = `Failed to fetch venues: ${error.message}`;
+                errorDiv.style.display = 'block';
+                venuesList.innerHTML = '';
+            }
+        }
+
+        // Calculate time slot duration
+        function calculateSlotDuration(startTime, endTime, slots) {
+            if (!startTime || !endTime || slots <= 0) return 30;
+            const [startH, startM] = startTime.split(':').map(Number);
+            const [endH, endM] = endTime.split(':').map(Number);
+            const startMinutes = startH * 60 + startM;
+            const endMinutes = endH * 60 + endM;
+            if (endMinutes <= startMinutes) return 30;
+            const totalMinutes = endMinutes - startMinutes;
+            const minSlotDuration = 30;
+            return Math.max(minSlotDuration, Math.floor(totalMinutes / slots));
+        }
+
+        // Add minutes to time
+        function addMinutes(time, minutes) {
+            if (!time) return '00:00';
+            const [h, m] = time.split(':').map(Number);
+            const totalMinutes = h * 60 + m + minutes;
+            const newH = Math.floor(totalMinutes / 60) % 24;
+            const newM = totalMinutes % 60;
+            return `${newH.toString().padStart(2, '0')}:${newM.toString().padStart(2, '0')}`;
+        }
+
+        // Calculate total minutes from time string
+        function calculateTotalMinutes(time) {
+            const [h, m] = time.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        // Update itinerary summary
+        function updateItinerarySummary() {
+            const startTime = document.getElementById('start_time').value;
+            const endTime = document.getElementById('end_time').value;
+            const timeSlots = selectedVenues.filter(v => v.id !== 'your-location').length;
+            const itinerary = selectedVenues.filter(v => v.id !== 'your-location').map((venue, index) => {
+                const slotDuration = calculateSlotDuration(startTime, endTime, timeSlots);
+                const slotStart = addMinutes(startTime, index * slotDuration);
+                const slotEnd = addMinutes(startTime, Math.min((index + 1) * slotDuration, calculateTotalMinutes(endTime) - calculateTotalMinutes(startTime)));
+                return { ...venue, time: `${slotStart} - ${slotEnd}` };
+            });
+
+            document.getElementById('itinerary-summary').innerHTML = itinerary.length ? itinerary.map((venue, index) => {
+                const address = Array.isArray(venue.location.formattedAddress) ? venue.location.formattedAddress.join(', ') : venue.location.formattedAddress;
+                return `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${venue.name}</strong>
+                        <small class="text-muted d-block">${venue.categories.join(', ')}</small>
+                        <small class="text-muted d-block">${address}</small>
+                        <small class="text-muted d-block"><strong>Coordinates:</strong> Lat: ${venue.location.lat}, Lng: ${venue.location.lng}</small>
+                        <small class="text-muted d-block"><strong>Time:</strong> ${venue.time}⏰</small>
+                        ${venue.rating ? `<small class="text-muted d-block"><strong>Rating:</strong> ${venue.rating}/10⭐</small>` : '<small class="text-muted d-block"><strong>Rating:</strong> N/A</small>'}
+                        ${venue.phone !== 'N/A' ? `<small class="text-muted d-block"><strong>Phone:</strong> ${venue.phone}</small>` : '<small class="text-muted d-block"><strong>Phone:</strong> N/A</small>'}
+                        ${venue.website !== 'N/A' ? `<small class="text-muted d-block"><strong>Website:</strong> <a href="${venue.website}" target="_blank">Visit🌐</a></small>` : '<small class="text-muted d-block"><strong>Website:</strong> N/A</small>'}
+                        <small class="text-muted d-block"><strong>Hours:</strong> ${venue.hours}</small>
+                        ${venue.price ? `<small class="text-muted d-block"><strong>Price:</strong> ${'💲'.repeat(venue.price)}</small>` : '<small class="text-muted d-block"><strong>Price:</strong> N/A</small>'}
+                        ${venue.description !== 'N/A' ? `<small class="text-muted d-block"><strong>Description:</strong> ${venue.description}</small>` : ''}
+                    </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-venue" data-index="${index}">Remove🗑️</button>
+                </div>
+                `;
+            }).join('') : '<p class="text-muted">No venues selected. Please add some places to visit!🏞️</p>';
+
+            document.querySelectorAll('.remove-venue').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const index = parseInt(btn.dataset.index);
+                    selectedVenues = selectedVenues.filter((v, i) => i !== index + 1);
+                    updateItinerarySummary();
+                });
+            });
+
+            document.getElementById('selected_venues').value = JSON.stringify(selectedVenues);
+        }
+
+        // Form validation and step navigation
+        document.getElementById('next-step-1').addEventListener('click', () => {
+            interests = Array.from(document.querySelectorAll('input[name="interests"]:checked')).map(input => input.value);
+            const city = document.getElementById('city').value.trim();
+            const date = document.getElementById('date').value;
+            const startTime = document.getElementById('start_time').value;
+            const endTime = document.getElementById('end_time').value;
+
+            const startMinutes = calculateTotalMinutes(startTime);
+            const endMinutes = calculateTotalMinutes(endTime);
+            const minDuration = interests.length * 30;
+            if (!interests.length) {
+                document.getElementById('interests-error').style.display = 'block';
+                return;
+            }
+            if (!city || !date || !startTime || !endTime) {
+                document.getElementById('schedule-form').classList.add('was-validated');
+                return;
+            }
+            if (endMinutes <= startMinutes) {
+                document.getElementById('end_time').classList.add('is-invalid');
+                document.getElementById('end_time').nextElementSibling.textContent = 'End time must be after start time.';
+                return;
+            }
+            if (endMinutes - startMinutes < minDuration) {
+                document.getElementById('end_time').classList.add('is-invalid');
+                document.getElementById('end_time').nextElementSibling.textContent = `Time window must be at least ${minDuration} minutes for ${interests.length} interests.`;
+                return;
+            }
+
+            currentInterestIndex = 0;
+            showStep(2);
+        });
+
+        document.getElementById('prev-step-2').addEventListener('click', () => {
+            showStep(1);
+        });
+
+        document.getElementById('next-step-2').addEventListener('click', () => {
+            currentInterestIndex++;
+            if (currentInterestIndex < interests.length) {
+                document.getElementById('next-step-2').disabled = true;
+                fetchVenuesForInterest();
+            } else {
+                showStep(3);
+            }
+        });
+
+        document.getElementById('prev-step-3').addEventListener('click', () => {
+            currentInterestIndex = interests.length - 1;
+            showStep(2);
+        });
+
+        document.getElementById('schedule-form').addEventListener('submit', (e) => {
+            if (!selectedVenues.length || selectedVenues.length === 1 && selectedVenues[0].id === 'your-location') {
+                document.getElementById('venues-error').textContent = 'Please select at least one venue.';
+                document.getElementById('venues-error').style.display = 'block';
+                e.preventDefault();
+                e.stopPropagation();
+                showStep(2);
+            }
+            document.getElementById('selected_venues').value = JSON.stringify(selectedVenues);
+        });
+
+        // Initialize venues if editing schedule
+        if (schedule && schedule.city) {
+            interests = schedule.interests || [];
+            selectedVenues = schedule.venues || [];
+            if (interests.length && selectedVenues.length > 1) {
+                showStep(3);
+            }
+        }
+    })();
+</script>
+{% endblock %}

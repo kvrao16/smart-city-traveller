@@ -1,0 +1,387 @@
+{% extends 'base.html' %}
+{% block title %}Map View - Smart City Traveller{% endblock %}
+{% block content %}
+<style>
+    /* Background Image for the Map Page */
+    body {
+        background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+    }
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7); /* Dark overlay to match the theme */
+        z-index: -1;
+    }
+    /* Card Styling */
+    .card {
+        background: #3a3a3a; /* Dark gray to match the dark theme */
+        border: none;
+        border-radius: 15px;
+        color: #e0e0e0; /* Light gray text */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    /* Map Styling */
+    #map {
+        border: 1px solid #66b0ff; /* Light blue border to match theme */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow for emphasis */
+    }
+    /* Buttons */
+    .btn-primary {
+        background: #66b0ff; /* Light blue button */
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+    .btn-primary:hover {
+        background: #4d9bff; /* Slightly darker blue on hover */
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    .btn-secondary {
+        background: #4a4a4a; /* Dark gray button */
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-weight: 600;
+        color: #e0e0e0;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-secondary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    .btn-secondary:hover::before {
+        left: 100%;
+    }
+    .btn-secondary:hover {
+        background: #5a5a5a; /* Slightly lighter gray on hover */
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    .btn-outline-secondary {
+        background: #4d9bff; /* Orange background to match other files */
+        border: none; /* Aligned with login.html style */
+        border-radius: 10px;
+        padding: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-outline-secondary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 159, 51, 0.3), transparent); /* Shine effect matching orange */
+        transition: 0.5s;
+    }
+    .btn-outline-secondary:hover::before {
+        left: 100%;
+    }
+    .btn-outline-secondary:hover {
+        background: #4d9bff; /* Slightly darker orange on hover */
+        color: #ffffff;
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Aligned with login.html */
+    }
+    /* Alert Styling */
+    .alert {
+        border-radius: 8px;
+        color: #ffffff;
+    }
+    .alert-danger {
+        background: #ff4d4d; /* Red for error messages */
+        border: none;
+    }
+    .alert-success {
+        background: #28a745; /* Green for success messages */
+        border: none;
+    }
+    .btn-close {
+        filter: invert(1); /* Makes the close button white for visibility */
+    }
+    /* General Text */
+    .text-center {
+        color: #e0e0e0;
+    }
+    .text-muted {
+        color: #a0a0a0 !important; /* Light gray for muted text */
+    }
+    h2 {
+        color: #ffffff;
+    }
+    /* Icon Styling */
+    .fas.fa-map {
+        transition: transform 0.3s ease;
+    }
+    .fas.fa-map:hover {
+        transform: scale(1.1);
+    }
+    /* Info Window Styling */
+    .gm-style-iw {
+        background: #3a3a3a !important; /* Match card background */
+        color: #e0e0e0 !important;
+        border-radius: 8px !important;
+    }
+    .gm-style-iw-d {
+        overflow: auto !important;
+    }
+    .gm-style-iw h6 {
+        color: #ffffff !important;
+    }
+    .gm-style-iw p {
+        color: #e0e0e0 !important;
+    }
+</style>
+<div class="container mt-5 py-5 fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card p-5 shadow-lg">
+                <h2 class="text-center mb-4 fs-3 fw-bold">Map View🗺️</h2>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                {% if venues %}
+                    <div id="map" style="height: 600px; width: 100%; border-radius: 10px;"></div>
+                    <div class="mt-4">
+                    </div>
+                    <div class="d-flex gap-3 mt-4">
+                        <a href="{{ url_for('results', schedule_id=request.args.get('schedule_id', '')) }}" class="btn btn-secondary w-100" id="back-to-results-btn">Back to Results🔙</a>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary w-100" id="back-to-dashboard-btn">Back to Dashboard🏠</a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-map fa-3x text-muted mb-3"></i>
+                        <p class="fs-5 text-muted">No venues to display. Create a schedule first!📍</p>
+                        <a href="{{ url_for('create_schedule') }}" class="btn btn-primary">Create Schedule🗺️</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config.google_maps.api_key }}&callback=initMap" async defer></script>
+<script>
+    (function () {
+        'use strict';
+
+        // Initialize Firebase
+        try {
+            const firebaseConfig = {{ config.firebase | tojson | safe }};
+            firebase.initializeApp(firebaseConfig);
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                Failed to connect to services. Please try again later.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.querySelector('.card').prepend(alertDiv);
+            return;
+        }
+
+        // Debug navigation clicks
+        document.getElementById('back-to-results-btn')?.addEventListener('click', () => {
+            console.log('Navigating to results with schedule_id:', '{{ request.args.get("schedule_id", "") }}');
+        });
+        document.getElementById('back-to-dashboard-btn')?.addEventListener('click', () => {
+            console.log('Navigating to dashboard');
+        });
+
+        // Map initialization
+        {% if venues %}
+            const venues = {{ venues | tojson | safe }};
+
+            let map, directionsService, directionsRenderer;
+
+            function initMap() {
+                try {
+                    // Initialize map
+                    map = new google.maps.Map(document.getElementById('map'), {
+                        zoom: 12,
+                        center: { lat: venues[0].location.lat, lng: venues[0].location.lng },
+                        mapTypeControl: false,
+                        streetViewControl: false,
+                        styles: [
+                            {
+                                featureType: 'poi',
+                                stylers: [{ visibility: 'simplified' }]
+                            },
+                            {
+                                featureType: 'poi.business',
+                                stylers: [{ visibility: 'on' }]
+                            },
+                            {
+                                featureType: 'road',
+                                elementType: 'geometry',
+                                stylers: [{ color: '#d3d3d3' }]
+                            },
+                            {
+                                featureType: 'water',
+                                stylers: [{ color: '#add8e6' }]
+                            }
+                        ]
+                    });
+
+                    // Initialize directions services
+                    directionsService = new google.maps.DirectionsService();
+                    directionsRenderer = new google.maps.DirectionsRenderer({
+                        map: map,
+                        panel: document.getElementById('directions-panel'),
+                        suppressMarkers: false,
+                        polylineOptions: {
+                            strokeColor: '#66b0ff', /* Light blue to match theme */
+                            strokeOpacity: 0.8,
+                            strokeWeight: 4
+                        }
+                    });
+
+                    // Add markers
+                    const markers = venues.map((venue, index) => {
+                        const marker = new google.maps.Marker({
+                            position: { lat: venue.location.lat, lng: venue.location.lng },
+                            map: map,
+                            title: venue.name,
+                            label: {
+                                text: `${index + 1}`,
+                                color: '#fff',
+                                fontWeight: 'bold',
+                                fontSize: '14px'
+                            },
+                            icon: {
+                                url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                                scaledSize: new google.maps.Size(40, 40)
+                            }
+                        });
+
+                        const infowindow = new google.maps.InfoWindow({
+                            content: `
+                                <div class="p-2">
+                                    <h6 class="fw-bold">${venue.name}📍</h6>
+                                    <p class="mb-1">${venue.category || 'N/A'} 🎭</p>
+                                    <p class="mb-0">${venue.location.formattedAddress.join(', ')}🏠</p>
+                                </div>
+                            `
+                        });
+
+                        marker.addListener('click', () => {
+                            infowindow.open(map, marker);
+                        });
+
+                        return marker;
+                    });
+
+                    // Calculate and display route
+                    calculateRoute();
+                } catch (error) {
+                    console.error('Map initialization error:', error);
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                    
+    
+                }
+            }
+
+            // Initialize map on load
+            window.addEventListener('load', initMap);
+
+            // Responsive map adjustments
+            function adjustMapHeight() {
+                const mapDiv = document.getElementById('map');
+                const width = window.innerWidth;
+                if (width <= 576) {
+                    mapDiv.style.height = '400px';
+                } else if (width <= 768) {
+                    mapDiv.style.height = '500px';
+                } else {
+                    mapDiv.style.height = '600px';
+                }
+            }
+            adjustMapHeight();
+            window.addEventListener('resize', adjustMapHeight);
+        {% endif %}
+
+        // Button hover effects
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-2px)';
+                btn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translateY(0)';
+                btn.style.boxShadow = 'none';
+            });
+        });
+
+        // Keyboard navigation
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    btn.click();
+                }
+            });
+        });
+
+        // Accessibility enhancements
+        document.getElementById('map')?.setAttribute('aria-label', 'Interactive map showing travel venues');
+        document.getElementById('directions-panel')?.setAttribute('aria-label', 'Driving directions between selected venues');
+        document.querySelectorAll('a').forEach(link => {
+            link.setAttribute('aria-label', link.textContent || 'Navigate to section');
+        });
+    })();
+</script>
+{% endblock %}

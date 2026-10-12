@@ -1,0 +1,8 @@
+.env
+*.env
+*-firebase-adminsdk-*.json
+flask_session/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
